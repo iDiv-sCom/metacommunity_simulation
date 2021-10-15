@@ -1,0 +1,157 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r,cache=TRUE}
+results = lapply(1:8, function(i) readRDS(paste0("01_prelim_results_",i,".RDS")))
+```
+
+
+## Interaction matrices - Structures
+
+Abundance - Temporal
+```{r,fig.width=5, fig.height=12}
+par(mfrow = c(8,2), mar = c(rep(2, 4)))
+for(i in 1:8) {
+fields::image.plot(results[[i]][[2]]$A, main = "True")
+fields::image.plot(results[[i]][[2]]$results_abundance$A_species, main = "Temporal")
+}
+```
+
+Abundance - Spatio-Temporal
+```{r,fig.width=5, fig.height=12}
+par(mfrow = c(8,2), mar = c(rep(2, 4)))
+for(i in 1:8) {
+fields::image.plot(results[[i]][[3]]$A_abund, main = "True")
+fields::image.plot(results[[i]][[3]]$results_abundance$A_species, main = "Spatio-temporal")
+}
+```
+
+
+
+PA - Temporal
+```{r,fig.width=5, fig.height=12}
+par(mfrow = c(8,2), mar = c(rep(2, 4)))
+for(i in 1:8) {
+fields::image.plot(results[[i]][[2]]$A, main = "True")
+fields::image.plot(results[[i]][[2]]$results_PA$A_species, main = "Temporal")
+}
+```
+
+PA - Spatio-Temporal
+```{r,fig.width=5, fig.height=12}
+par(mfrow = c(8,2), mar = c(rep(2, 4)))
+for(i in 1:8) {
+fields::image.plot(results[[i]][[3]]$A_PA, main = "True")
+fields::image.plot(results[[i]][[3]]$results_PA$A_species, main = "Spatio-temporal")
+}
+```
+
+
+
+### In numbers
+Abundance
+```{r}
+rmse = function(t, p) sqrt(mean( (t-p)**2 ))
+
+R_2 = 
+  sapply(1:8, function(i) {
+    return(c(
+      cor(as.vector(results[[i]][[2]]$A), as.vector(results[[i]][[2]]$results_abundance$A_species)),
+      cor(as.vector(results[[i]][[3]]$A_abund), as.vector(results[[i]][[3]]$results_abundance$A_species))
+      ))
+  })
+
+R_2_spearman = 
+  sapply(1:8, function(i) {
+    return(c(
+      cor(as.vector(results[[i]][[2]]$A), as.vector(results[[i]][[2]]$results_abundance$A_species), method = "spearman"),
+      cor(as.vector(results[[i]][[3]]$A_abund), as.vector(results[[i]][[3]]$results_abundance$A_species), method = "spearman")
+      ))
+  })
+
+```
+
+```{r,echo=FALSE}
+RMSE = 
+  sapply(1:8, function(i) {
+    return(c(
+      rmse(as.vector(results[[i]][[2]]$A), as.vector(results[[i]][[2]]$results_abundance$A_species)),
+      rmse(as.vector(results[[i]][[3]]$A_abund), as.vector(results[[i]][[3]]$results_abundance$A_species))
+      ))
+  })
+rownames(R_2) = c("temporal", "spatio-temporal")
+colnames(R_2) = paste0(1:8, "_scenario")
+
+rownames(R_2_spearman) = c("temporal", "spatio-temporal")
+colnames(R_2_spearman) = paste0(1:8, "_scenario")
+
+rownames(RMSE) = c("temporal", "spatio-temporal")
+colnames(RMSE) = paste0(1:8, "_scenario")
+
+cat("R2: \n")
+print(round(R_2, 3))
+
+cat("R2_spearman: \n")
+print(round(R_2_spearman, 3))
+
+cat("RMSE: \n")
+print(round(RMSE, 3))
+```
+
+
+PA
+```{r}
+rmse = function(t, p) sqrt(mean( (t-p)**2 ))
+
+R_2 = 
+  sapply(1:8, function(i) {
+    return(c(
+      cor(as.vector(results[[i]][[2]]$A), as.vector(results[[i]][[2]]$results_PA$A_species)),
+      cor(as.vector(results[[i]][[3]]$A_PA), as.vector(results[[i]][[3]]$results_PA$A_species))
+      ))
+  })
+
+R_2_spearman = 
+  sapply(1:8, function(i) {
+    return(c(
+      cor(as.vector(results[[i]][[2]]$A), as.vector(results[[i]][[2]]$results_PA$A_species), method = "spearman"),
+      cor(as.vector(results[[i]][[3]]$A_PA), as.vector(results[[i]][[3]]$results_PA$A_species), method = "spearman")
+      ))
+  })
+
+RMSE = 
+  sapply(1:8, function(i) {
+    return(c(
+      rmse(as.vector(results[[i]][[2]]$A), as.vector(results[[i]][[2]]$results_PA$A_species)),
+      rmse(as.vector(results[[i]][[3]]$A_PA), as.vector(results[[i]][[3]]$results_PA$A_species))
+      ))
+  })
+
+```
+
+```{r, echo = FALSE}
+rownames(R_2) = c("temporal", "spatio-temporal")
+colnames(R_2) = paste0(1:8, "_scenario")
+
+rownames(R_2_spearman) = c("temporal", "spatio-temporal")
+colnames(R_2_spearman) = paste0(1:8, "_scenario")
+
+rownames(RMSE) = c("temporal", "spatio-temporal")
+colnames(RMSE) = paste0(1:8, "_scenario")
+
+cat("R2: \n")
+print(round(R_2, 3))
+
+cat("R2_spearman: \n")
+print(round(R_2_spearman, 3))
+
+cat("RMSE: \n")
+print(round(RMSE, 3))
+```
+
